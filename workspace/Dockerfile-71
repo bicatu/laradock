@@ -596,6 +596,20 @@ RUN if [ ${INSTALL_IMAGEMAGICK} = true ]; then \
     apt-get install -y --force-yes imagemagick php-imagick \
 ;fi
 
+#####################################
+# SODIUM:
+#####################################
+USER root
+ARG INSTALL_SODIUM=false
+ENV INSTALL_SODIUM ${INSTALL_SODIUM}
+RUN if [ ${INSTALL_SODIUM} = true ]; then \
+    apt-get update && apt-get install -y libmcrypt-dev git php7.1-mcrypt && \
+    git clone -b stable https://github.com/jedisct1/libsodium.git && \
+    cd libsodium && ./configure && make -j$(nproc) check && make install && \
+    pecl install libsodium && \
+    echo "extension=sodium.so" >> /etc/php/7.1/cli/sodium.ini \
+;fi
+
 #
 #--------------------------------------------------------------------------
 # Final Touch

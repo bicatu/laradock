@@ -313,6 +313,35 @@ RUN if [ ${INSTALL_IMAGEMAGICK} = true ]; then \
     docker-php-ext-enable imagick \
 ;fi
 
+#####################################
+# SODIUM:
+#####################################
+USER root
+ARG INSTALL_SODIUM=false
+ENV INSTALL_SODIUM ${INSTALL_SODIUM}
+RUN if [ ${INSTALL_SODIUM} = true ]; then \
+    apt-get update && apt-get install -y libmcrypt-dev git && \
+    docker-php-ext-install -j$(nproc) mcrypt && \
+    git clone -b stable https://github.com/jedisct1/libsodium.git && \
+    cd libsodium && ./configure && make -j$(nproc) check && make install && \
+    pecl install libsodium && \
+    docker-php-ext-enable sodium \
+;fi
+
+#####################################
+# KAFKA:
+#####################################
+USER root
+ARG INSTALL_KAFKA=false
+ENV INSTALL_KAFKA ${INSTALL_KAFKA}
+RUN if [ ${INSTALL_KAFKA} = true ]; then \
+    apt-get update && apt-get install -y git python && \
+    git clone https://github.com/edenhill/librdkafka.git && \
+    cd librdkafka && ./configure && make -j2 && make install && \
+    pecl install rdkafka && \
+    docker-php-ext-enable rdkafka \
+;fi
+
 #
 #--------------------------------------------------------------------------
 # Final Touch
